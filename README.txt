@@ -1,5 +1,5 @@
 This code is a work in progress on a way to use the Hypergraphical Approach in order to create an OWL EL+ reasoner.
-
+I modified the ontology class in order to have correct splitting of axioms (especially A2Ai and Ai2B)
 The code isn't making much use of the workspace at the moment, i wanted to take some distance from the object oriented programming in order to be able to implement multiprocessing in a more simple manner.
 
 5 function for  5 rules : 
