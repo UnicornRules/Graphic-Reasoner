@@ -146,10 +146,21 @@ class saturate_ini_pools:
         axiom_s = axiom.split('(')
         # (implies/equi A B)
         if len(axiom_s) == 2:
-            assert len(rest) == 1
-            clause = ('A2B', first, rest[0])
-            self.add_clause(clause)
-            result = [clause]
+            if axiom_s[1][0]=='e':
+                
+                assert len(rest) == 1
+                clause = ('A2B', first, rest[0])
+                self.add_clause(clause)
+                assert len(rest) == 1
+                clause = ('A2B', rest[0], first)
+                self.add_clause(clause)
+                result = [clause]
+            else:
+                assert len(rest) == 1
+                clause = ('A2B', first, rest[0])
+                self.add_clause(clause)
+                result = [clause]
+                
             return result
 
         result = []
@@ -210,6 +221,10 @@ class saturate_ini_pools:
                         self.A2Ai[A].add(rest_tuple)
                     else:
                         self.A2Ai[A] = {rest_tuple}
+                    if first in self.A2B:
+                        self.A2B[first].add(A)
+                    else:
+                        self.A2B[first]={A}
 
         return result
 
@@ -1835,31 +1850,52 @@ if __name__=='__main__':
         
         #f1.write(f'{file},{num_axiom}, {num_non_el_axiom},{load_time},{saturate_time},{size_after_saturate}\n')
     
-    #S1 = list_dict[0]
-    #S2=list_dict[1]
+    S1 = list_dict[0]
+    S2=list_dict[1]
   
     
-          
+    """      
     def list_diff(dic1,dic2):  
         list_diff=[]
         for keys in dic1:
-            if keys in dic2.keys():
-                for elem in dic1[keys]:
-                    if elem not in dic2[keys]:
-                        list_diff.append((keys,elem))
-            else:
-                for elem in dic1[keys]:
-                    list_diff.append((keys,elem))
+            if '__' not in keys:
+                if keys in dic2.keys():
+                    for elem in dic1[keys]:
+                        if '__' not in elem:
+                            if elem not in dic2[keys]:
+                                list_diff.append((keys,elem))
+                else:
+                    if '__' not in elem:
+                        for elem in dic1[keys]:
+                            list_diff.append((keys,elem))
         if len(list_diff)>0 and len(list_diff)<100:
             print(list_diff)
         if len(list_diff)>99:
             print(list_diff[1:20])
-        return(list_diff)
+        return(list_diff)"""
+    
+    def list_diff(dic1, dic2):
+        list_diff = []
+        for keys in dic1:
+            if '__' in keys:
+                continue
+
+            if keys in dic2.keys():
+                for elem in dic1[keys]:
+                    if elem not in dic2[keys] and "__" not in elem:
+                        list_diff.append((keys, elem))
+            else:
+                for elem in dic1[keys]:
+                    if "__" not in elem:
+                        list_diff.append((keys, elem))
+        print(list_diff[:10])
+        return (list_diff)
+
     print(len(S2.ontology_pool.A2Ai))
     print(len(S2.ontology_pool.Ai2B))
-    #print(len(list_diff(S1.ontology_pool.A2B,S2.processed_pool.H2A)))
+    print(len(list_diff(S1.ontology_pool.A2B,S2.processed_pool.H2A)))
     #print(len(list_diff(S2.processed_pool.H2A,unfold(S2.processed_pool.H2A))))   
-    for keys in S2.ontology_pool.A2Ai.keys():
+    """for keys in S2.ontology_pool.A2Ai.keys():
         if keys == 'galen7.owl#ArteryWhichHasNoLaterality':
             print(S2.ontology_pool.A2Ai[keys])
         for elem in S2.ontology_pool.A2Ai[keys]:
@@ -1867,13 +1903,32 @@ if __name__=='__main__':
                 print( keys +' '+elem)
     print('AI2B')    
     for keys in S2.ontology_pool.Ai2B.keys():
-        if keys == 'galen7.owl#ArteryWhichHasNoLaterality':
+        if keys == 'galen7.owl#InvestigationActwhichisToDetermineExistentiality':
             print(S2.ontology_pool.Ai2B[keys])
         for elem in S2.ontology_pool.Ai2B[keys]:
-            if elem == 'galen7.owl#ArteryWhichHasNoLaterality':
-                print( keys)
+            if elem == 'galen7.owl#InvestigationActwhichisToDetermineExistentiality':
+                print(keys)
                 print(elem)
-            
+    print('AI2B-2')    
+    for keys in S2.ontology_pool.Ai2B.keys():
+        if keys == 'galen7.owl#ABOBloodGroupTest':
+            print(S2.ontology_pool.Ai2B[keys])
+        for elem in S2.ontology_pool.Ai2B[keys]:
+            if elem == 'galen7.owl#ABOBloodGroupTest':
+                print(keys)
+                print(elem)
+    if 'galen7.owl#DetectionAct'in S2.processed_pool.H2A:
+        print('H2A')
+        print(S2.processed_pool.H2A['galen7.owl#DetectionAct'])
+    if 'galen7.owl#InvestigationActwhichisToDetermineExistentiality' in S2.ontology_pool.A2B:
+        print('A2B-reverse')
+        print(S2.ontology_pool.A2B['galen7.owl#InvestigationActwhichisToDetermineExistentiality'])
+        
+    if 'galen7.owl#DetectionAct'in S2.ontology_pool.A2B:
+        print('A2B')
+        print(S2.ontology_pool.A2B['galen7.owl#DetectionAct'])
+    print(S2.processed_pool.H2A['#N5957'])"""
+        
     def longueur(dict1):
         cpt=0
         for keys in dict1.keys():
@@ -1881,6 +1936,7 @@ if __name__=='__main__':
                 cpt+=1
         return(cpt)
     print(longueur(S2.processed_pool.H2A))
+    print(longueur(S2.processed_pool.H2rK))
     """print('q')
     print(S1.ontology_pool.Ai2B)
     print('a')
