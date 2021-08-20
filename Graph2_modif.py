@@ -144,7 +144,6 @@ class saturate_ini_pools:
     def add(self, axiom):
         first, rest = split(axiom)
         axiom_s = axiom.split('(')
-
         # (implies/equi A B)
         if len(axiom_s) == 2:
             assert len(rest) == 1
@@ -155,7 +154,6 @@ class saturate_ini_pools:
 
         result = []
         literal = axiom.split('(')[2]
-
         if literal[0] == 's':  # (... (some...))
             assert len(rest) == 2
             if axiom.split(' ')[1][0] == '(':
@@ -181,8 +179,8 @@ class saturate_ini_pools:
             #assert axiom[1] != 'e' # it is impossible it has form (implies... (all...))
 
         else:  # (... (and...))
-            """for rest_term in rest:
-                print(rest_term)
+            for rest_term in rest:
+                #print(rest_term)
                 clause = ('A2B', first, rest_term)
                 self.add_clause(clause)
                 result.append(clause)
@@ -202,6 +200,16 @@ class saturate_ini_pools:
                     self.A2Ai[conc].add(union)
                 else:
                     self.A2Ai[conc] = {union}
+            if axiom[1] == 'e':
+                rest_tuple = tuple(sorted(rest))
+                clause = ('Ai2B', rest_tuple , first)
+                self.add_clause(clause)
+                result.append(clause)
+                for A in rest_tuple:
+                    if A in self.A2Ai:
+                        self.A2Ai[A].add(rest_tuple)
+                    else:
+                        self.A2Ai[A] = {rest_tuple}
 
         return result
 
@@ -1448,7 +1456,7 @@ def function_5(A1,A2,s,s2rt,B2r2Y,A2r2X):  #H3 with A1 and A2
     return(dict_ax)   
 
 
-def s2rt_r2st(s2rt):
+def s2rt_r2st(s2rt):  #allow to witch the keys from r :s :t  to s:t:r
     r2st = {}
     for keys in s2rt.keys():
         for key in s2rt[keys]:
@@ -1827,7 +1835,7 @@ if __name__=='__main__':
         
         #f1.write(f'{file},{num_axiom}, {num_non_el_axiom},{load_time},{saturate_time},{size_after_saturate}\n')
     
-    S1 = list_dict[0]
+    #S1 = list_dict[0]
     #S2=list_dict[1]
   
     
@@ -1844,10 +1852,28 @@ if __name__=='__main__':
                     list_diff.append((keys,elem))
         if len(list_diff)>0 and len(list_diff)<100:
             print(list_diff)
+        if len(list_diff)>99:
+            print(list_diff[1:20])
         return(list_diff)
-    
-    print(len(list_diff(S1.ontology_pool.A2B,S2.processed_pool.H2A)))
-    print(len(list_diff(S2.processed_pool.H2A,unfold(S2.processed_pool.H2A))))      
+    print(len(S2.ontology_pool.A2Ai))
+    print(len(S2.ontology_pool.Ai2B))
+    #print(len(list_diff(S1.ontology_pool.A2B,S2.processed_pool.H2A)))
+    #print(len(list_diff(S2.processed_pool.H2A,unfold(S2.processed_pool.H2A))))   
+    for keys in S2.ontology_pool.A2Ai.keys():
+        if keys == 'galen7.owl#ArteryWhichHasNoLaterality':
+            print(S2.ontology_pool.A2Ai[keys])
+        for elem in S2.ontology_pool.A2Ai[keys]:
+            if elem == 'galen7.owl#ArteryWhichHasNoLaterality':
+                print( keys +' '+elem)
+    print('AI2B')    
+    for keys in S2.ontology_pool.Ai2B.keys():
+        if keys == 'galen7.owl#ArteryWhichHasNoLaterality':
+            print(S2.ontology_pool.Ai2B[keys])
+        for elem in S2.ontology_pool.Ai2B[keys]:
+            if elem == 'galen7.owl#ArteryWhichHasNoLaterality':
+                print( keys)
+                print(elem)
+            
     def longueur(dict1):
         cpt=0
         for keys in dict1.keys():
