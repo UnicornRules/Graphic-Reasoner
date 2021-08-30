@@ -1349,7 +1349,7 @@ dic_test_B2RA = {'A': {'r': {'B', 'C'}}}
 dic_test_role = {'r': 's'}
 
 
-def function_1(X, A, A2Ai, Ai2B, dict_simple,dict_simple_fixed):  # This is H1
+def function_1(X, A, A2Ai, Ai2B, dict_simple):  # This is H1
     dict_ax = {}
     # double processing (pop puis add, faut delete au fur et a mesure)
     if A in A2Ai.keys():
@@ -1362,17 +1362,17 @@ def function_1(X, A, A2Ai, Ai2B, dict_simple,dict_simple_fixed):  # This is H1
                 for Ai in Ai_set:
                     if Ai in Ai_available or Ai == X:
                         for A0 in Ai2B[Ai_set]:
-                            if A0 in dict_simple_fixed.keys():
-                                for Y in dict_simple_fixed[A0]:
-                                    if (X, Y) in dict_ax.keys():
-                                        dict_ax[(X, Y)].add(((X, Ai_set), (Ai_set, A0), (A0, Y)))
-                                    else:
-                                        dict_ax[(X,Y)]= {((X, Ai_set), (Ai_set, A0), (A0, Y))}
+                            """if A0 in dict_simple.keys():
+                            for Y in dict_simple[A0]:"""
+                            if (X, A0) in dict_ax.keys():
+                                dict_ax[(X, A0)].add(((X, Ai_set), (Ai_set, A0)))
+                            else:
+                                dict_ax[(X,A0)]= {((X, Ai_set), (Ai_set, A0))}
 
+         
                     else:
                         break              
     return (dict_ax)
-
 
 def function_2(B1, B2, A2r2X, B2r2Y):  # H2 with B1 and B2
     dict_ax = {}
@@ -1709,7 +1709,7 @@ def saturation_process(S, dic_init):
                     list_connection_4 = function_2(A1, elem, S.processed_pool.K2rH,
                                                    S.ontology_pool.B2rA)  # H2 with (B1,B2) -> (X,r,Y)
                     list_connection_5 = function_1(A1, elem, S.ontology_pool.A2Ai, S.ontology_pool.Ai2B,
-                                                   dic_init,dic_init_fixed)  # H1 with (X,{Ai}) -> (A0,Y)
+                                                   dic_init)  # H1 with (X,{Ai}) -> (A0,Y)
                     if list_connection_4:
 
                         for elem in list_connection_4.keys():
@@ -1717,33 +1717,38 @@ def saturation_process(S, dic_init):
                             Y = elem[1]
                             
                             if X in dic_processed.keys():
-                                if Y not in dic_processed[X]:
-                                    if X in dic_init.keys() and Y not in dic_init[X]:
-                                        dic_init[X].add(Y)
-                                    elif X not in dic_init.keys():
-                                        dic_init[X] = {Y}
+                                
+                                        if Y not in dic_processed[X]:
+                                            if X in dic_init.keys() and Y not in dic_init[X]:
+                                                dic_init[X].add(Y)
+                                            elif X not in dic_init.keys():
+                                                dic_init[X] = {Y}
                             else:
-                                if X in dic_init.keys() and Y not in dic_init[X]:
-                                    dic_init[X].add(Y)
-                                elif X not in dic_init.keys():
-                                    dic_init[X] = {Y}
+                                        if X in dic_init.keys() and Y not in dic_init[X]:
+                                            dic_init[X].add(Y)
+                                        elif X not in dic_init.keys():
+                                            dic_init[X] = {Y}
 
                     if list_connection_5:
                         for elem in list_connection_5.keys():
                             X = elem[0]
-                            Y = elem[1]
+                            A0 = elem[1]
                             # print(X +' '+Y)
                             if X in dic_processed.keys():
-                                if Y not in dic_processed[X]:
-                                    if X in dic_init.keys() and Y not in dic_init[X]:
-                                        dic_init[X].add(Y)
-                                    elif X not in dic_init.keys():
-                                        dic_init[X] = {Y}
+                                if A0 in dic_init_fixed.keys():
+                                    for Y in dic_init_fixed[A0]:
+                                        if Y not in dic_processed[X]:
+                                            if X in dic_init.keys() and Y not in dic_init[X]:
+                                                dic_init[X].add(Y)
+                                            elif X not in dic_init.keys():
+                                                dic_init[X] = {Y}
                             else:
-                                if X in dic_init.keys() and Y not in dic_init[X]:
-                                    dic_init[X].add(Y)
-                                elif X not in dic_init.keys():
-                                    dic_init[X] = {Y}
+                                if A0 in dic_init_fixed.keys():
+                                    for Y in dic_init_fixed[A0]:
+                                        if X in dic_init.keys() and Y not in dic_init[X]:
+                                            dic_init[X].add(Y)
+                                        elif X not in dic_init.keys():
+                                            dic_init[X] = {Y}
                             # print(dic_init)
                 for keys in dict_processed.keys():
                     for elem in dict_processed[keys]:
@@ -1859,10 +1864,6 @@ if __name__ == '__main__':
         d= solving_normalization_issues(d,roles_inc)
         d2 = unfold(d)
 
-        for keys in S.ontology_pool.Ai2B.keys():
-            if 'galen7.owl#ArterywhichisContainedInAbdominalCavity' in S.ontology_pool.Ai2B[keys]:
-                print(keys)
-                print('a')
                 
           
         S2 = saturation_process(S, d2)
@@ -1901,7 +1902,6 @@ if __name__ == '__main__':
 
     #print(len(S2.ontology_pool.A2Ai))
     #print(len(S2.ontology_pool.Ai2B))
-    print('ca va jusque la')
     print(len(list_diff(S1.ontology_pool.A2B, S2.processed_pool.H2A)))
     # print(len(list_diff(S2.processed_pool.H2A,unfold(S2.processed_pool.H2A))))
     """for keys in S2.ontology_pool.A2Ai.keys():
